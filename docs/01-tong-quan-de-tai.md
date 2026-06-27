@@ -9,7 +9,7 @@ Sản phẩm hướng tới trải nghiệm tương tự các nền tảng phổ
 ## 1.2. Lý do chọn đề tài
 
 - **Nhu cầu thực tế lớn**: xem phim trực tuyến là một trong những hình thức giải trí phổ biến nhất; bài toán xây dựng nền tảng xem phim mang tính ứng dụng cao.
-- **Bao trùm nhiều kỹ thuật cốt lõi của lập trình web hiện đại**, phù hợp làm đồ án tốt nghiệp:
+- **Bao trùm nhiều kỹ thuật cốt lõi của lập trình web hiện đại**:
   - Xác thực & phân quyền người dùng (authentication, authorization).
   - Tích hợp **API bên thứ ba** (TMDB) và đồng bộ dữ liệu vào hệ thống.
   - Xử lý **streaming video** (HLS/MP4), lưu tiến độ xem.

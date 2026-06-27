@@ -1,6 +1,6 @@
 # MovieStream 🎬
 
-Website xem phim trực tuyến — **Đồ án tốt nghiệp (DATN)**. Xây dựng bằng Next.js 16 (full-stack), Prisma + PostgreSQL, Auth.js. Dữ liệu phim import từ **TMDB** và quản lý link xem qua trang quản trị.
+Website xem phim trực tuyến full-stack xây dựng bằng Next.js 16, Prisma + PostgreSQL, Auth.js. Dữ liệu phim import từ **TMDB** và quản lý link xem qua trang quản trị.
 
 > 📚 Tài liệu thiết kế chi tiết (tổng quan, phân tích yêu cầu/use case, ERD, kiến trúc, giao diện) nằm trong thư mục [`docs/`](./docs/README.md) — sơ đồ vẽ bằng Mermaid.
 
@@ -85,7 +85,7 @@ Mở **http://localhost:3000**.
 
 ```
 movie-stream/
-├─ docs/                      # Tài liệu thiết kế (DATN) + sơ đồ Mermaid
+├─ docs/                      # Tài liệu thiết kế + sơ đồ Mermaid
 ├─ prisma/                    # schema.prisma, seed.ts, migrations
 ├─ src/
 │  ├─ app/
@@ -111,4 +111,4 @@ movie-stream/
 - Cổng PostgreSQL map sang **5433** ở host để tránh đụng PostgreSQL 5432 có sẵn trên máy.
 
 ---
-*Đồ án tốt nghiệp — MovieStream.*
+*MovieStream — nền tảng xem phim trực tuyến.*

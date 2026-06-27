@@ -1,6 +1,6 @@
 # Tài liệu thiết kế — Website Xem Phim Trực Tuyến (MovieStream)
 
-> Bộ tài liệu phục vụ **Đồ án tốt nghiệp (DATN)**. Tất cả sơ đồ được vẽ bằng **Mermaid** (GitHub và VS Code — cài extension *Markdown Preview Mermaid Support* — đều render trực tiếp).
+> Bộ tài liệu thiết kế dự án. Tất cả sơ đồ được vẽ bằng **Mermaid** (GitHub và VS Code — cài extension *Markdown Preview Mermaid Support* — đều render trực tiếp).
 
 ## Thông tin chung
 
