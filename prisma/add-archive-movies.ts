@@ -14,7 +14,7 @@ const prisma = new PrismaClient({
 });
 
 const TARGET = Number(process.env.ARCHIVE_COUNT ?? 30);
-// Lọc bỏ tiêu đề nhạy cảm cho hợp gu đồ án.
+// Lọc bỏ tiêu đề nhạy cảm.
 const BAD =
   /sex|nud(e|ist)|xxx|porn|erotic|orgy|naked|madness|dr\.?\s*sex|smut|molest|nazi|concentration camp|hitler|propaganda|bee girls/i;
 

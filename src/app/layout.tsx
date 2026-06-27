@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | MovieStream",
   },
   description:
-    "Nền tảng xem phim trực tuyến: phim lẻ, phim bộ, đánh giá, danh sách yêu thích. Đồ án tốt nghiệp.",
+    "Nền tảng xem phim trực tuyến: phim lẻ, phim bộ, đánh giá, danh sách yêu thích.",
 };
 
 export default function RootLayout({

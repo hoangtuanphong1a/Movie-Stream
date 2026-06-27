@@ -1,4 +1,4 @@
-// Prisma schema — MovieStream (đồ án tốt nghiệp)
+// Prisma schema — MovieStream
 // Tài liệu thiết kế: ../docs/03-thiet-ke-co-so-du-lieu.md
 
 generator client {

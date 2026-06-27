@@ -25,8 +25,8 @@ export function Footer() {
           </nav>
         </div>
         <p className="mt-8 text-xs text-[var(--color-muted-foreground)]">
-          © {new Date().getFullYear()} MovieStream — Đồ án tốt nghiệp. Nội dung
-          phim chỉ phục vụ mục đích học tập, demo.
+          © {new Date().getFullYear()} MovieStream. Nội dung phim chỉ phục vụ
+          mục đích học tập, demo.
         </p>
       </div>
     </footer>
