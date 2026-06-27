@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: moviestream-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: moviestream
+      POSTGRES_PASSWORD: moviestream
+      POSTGRES_DB: moviestream
+    ports:
+      - "5433:5432"
+    volumes:
+      - moviestream-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moviestream -d moviestream"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  moviestream-pgdata:

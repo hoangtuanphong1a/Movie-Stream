@@ -1,0 +1,272 @@
+// Prisma schema — MovieStream (đồ án tốt nghiệp)
+// Tài liệu thiết kế: ../docs/03-thiet-ke-co-so-du-lieu.md
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────── Enums ───────────────
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum MovieType {
+  MOVIE
+  TV
+}
+
+enum MovieStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum VideoType {
+  MP4
+  HLS
+  EMBED
+}
+
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN
+}
+
+// ─────────────── Người dùng ───────────────
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String?
+  image        String?
+  role         Role       @default(USER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  reviews      Review[]
+  favorites    Favorite[]
+  watchlist    Watchlist[]
+  watchHistory WatchHistory[]
+  comments     Comment[]
+}
+
+// ─────────────── Phim ───────────────
+model Movie {
+  id            String      @id @default(cuid())
+  tmdbId        Int?        @unique
+  title         String
+  originalTitle String?
+  slug          String      @unique
+  overview      String?
+  posterPath    String?
+  backdropPath  String?
+  releaseDate   DateTime?
+  runtime       Int?
+  voteAverage   Float       @default(0)
+  trailerKey    String?
+  type          MovieType   @default(MOVIE)
+  status        MovieStatus @default(DRAFT)
+  featured      Boolean     @default(false)
+  viewCount     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  genres       MovieGenre[]
+  seasons      Season[]
+  videoSources VideoSource[]
+  cast         CastMember[]
+  reviews      Review[]
+  favorites    Favorite[]
+  watchlist    Watchlist[]
+  watchHistory WatchHistory[]
+  comments     Comment[]
+
+  @@index([status])
+  @@index([type])
+  @@index([featured])
+  @@index([createdAt])
+  @@index([voteAverage])
+}
+
+// ─────────────── Thể loại ───────────────
+model Genre {
+  id     String       @id @default(cuid())
+  tmdbId Int?         @unique
+  name   String
+  slug   String       @unique
+  movies MovieGenre[]
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+  movie   Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+  @@index([genreId])
+}
+
+// ─────────────── Mùa / Tập (phim bộ) ───────────────
+model Season {
+  id      String  @id @default(cuid())
+  movieId String
+  number  Int
+  name    String?
+  movie   Movie   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  episodes Episode[]
+
+  @@unique([movieId, number])
+}
+
+model Episode {
+  id        String  @id @default(cuid())
+  seasonId  String
+  number    Int
+  title     String?
+  overview  String?
+  runtime   Int?
+  stillPath String?
+  season    Season  @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  videoSources VideoSource[]
+  watchHistory WatchHistory[]
+
+  @@unique([seasonId, number])
+}
+
+// ─────────────── Nguồn phát (link xem) ───────────────
+model VideoSource {
+  id        String    @id @default(cuid())
+  movieId   String?
+  episodeId String?
+  label     String?
+  url       String
+  type      VideoType @default(MP4)
+  isDefault Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  movie   Movie?   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+  @@index([episodeId])
+}
+
+// ─────────────── Diễn viên / Vai diễn ───────────────
+model Person {
+  id          String       @id @default(cuid())
+  tmdbId      Int?         @unique
+  name        String
+  profilePath String?
+  roles       CastMember[]
+}
+
+model CastMember {
+  id        String  @id @default(cuid())
+  movieId   String
+  personId  String
+  character String?
+  order     Int     @default(0)
+  movie     Movie   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person    Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, personId])
+  @@index([movieId])
+}
+
+// ─────────────── Đánh giá & bình luận ───────────────
+model Review {
+  id        String       @id @default(cuid())
+  userId    String
+  movieId   String
+  rating    Int
+  comment   String?
+  status    ReviewStatus @default(VISIBLE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([movieId])
+}
+
+// ─────────────── Bình luận / Thảo luận (nhiều bình luận/người, có trả lời) ───────────────
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  parentId  String?
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie   Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([movieId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+// ─────────────── Yêu thích ───────────────
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([movieId])
+}
+
+// ─────────────── Danh sách xem sau ───────────────
+model Watchlist {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([movieId])
+}
+
+// ─────────────── Lịch sử & tiến độ xem ───────────────
+model WatchHistory {
+  id              String   @id @default(cuid())
+  userId          String
+  movieId         String
+  episodeId       String?
+  progressSeconds Int      @default(0)
+  durationSeconds Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie   Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId, episodeId])
+  @@index([userId])
+}
