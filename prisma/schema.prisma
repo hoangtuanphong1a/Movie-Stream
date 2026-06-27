@@ -58,6 +58,7 @@ model User {
   favorites    Favorite[]
   watchlist    Watchlist[]
   watchHistory WatchHistory[]
+  comments     Comment[]
 }
 
 // ─────────────── Phim ───────────────
@@ -89,10 +90,13 @@ model Movie {
   favorites    Favorite[]
   watchlist    Watchlist[]
   watchHistory WatchHistory[]
+  comments     Comment[]
 
   @@index([status])
   @@index([type])
   @@index([featured])
+  @@index([createdAt])
+  @@index([voteAverage])
 }
 
 // ─────────────── Thể loại ───────────────
@@ -199,6 +203,26 @@ model Review {
 
   @@unique([userId, movieId])
   @@index([movieId])
+}
+
+// ─────────────── Bình luận / Thảo luận (nhiều bình luận/người, có trả lời) ───────────────
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  parentId  String?
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie   Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([movieId])
+  @@index([userId])
+  @@index([parentId])
 }
 
 // ─────────────── Yêu thích ───────────────

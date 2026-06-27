@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 
 export async function getAdminStats() {
   const [movies, published, users, reviews, agg] = await Promise.all([
@@ -95,12 +96,51 @@ export async function listUsersAdmin() {
   });
 }
 
-export async function listReviewsAdmin() {
-  return prisma.review.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { name: true, email: true } },
-      movie: { select: { title: true, slug: true } },
-    },
-  });
+export async function listReviewsAdmin({
+  status,
+  q,
+  page = 1,
+  pageSize = 15,
+}: {
+  status?: "VISIBLE" | "HIDDEN";
+  q?: string;
+  page?: number;
+  pageSize?: number;
+} = {}) {
+  const where: Prisma.ReviewWhereInput = {};
+  if (status) where.status = status;
+  const term = q?.trim();
+  if (term) {
+    where.OR = [
+      { comment: { contains: term, mode: "insensitive" } },
+      { user: { name: { contains: term, mode: "insensitive" } } },
+      { user: { email: { contains: term, mode: "insensitive" } } },
+      { movie: { title: { contains: term, mode: "insensitive" } } },
+    ];
+  }
+
+  const [items, total, visible, hidden] = await Promise.all([
+    prisma.review.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        user: { select: { name: true, email: true } },
+        movie: { select: { title: true, slug: true } },
+      },
+    }),
+    prisma.review.count({ where }),
+    prisma.review.count({ where: { status: "VISIBLE" } }),
+    prisma.review.count({ where: { status: "HIDDEN" } }),
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    counts: { total: visible + hidden, visible, hidden },
+  };
 }

@@ -29,7 +29,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen">
       <aside className="hidden w-60 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-card)] p-4 md:flex md:flex-col">
-        <Link href="/admin" className="mb-6 text-lg font-bold">
+        <Link href="/admin" className="mb-6 font-serif text-xl font-bold tracking-tight">
           MovieStream{" "}
           <span className="text-[var(--color-primary)]">Admin</span>
         </Link>
@@ -38,7 +38,7 @@ export default async function AdminLayout({
             <Link
               key={n.href}
               href={n.href}
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--color-muted-foreground)] hover:bg-[var(--color-accent)] hover:text-white"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--color-muted-foreground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-foreground)]"
             >
               <n.icon className="size-4" />
               {n.label}
@@ -61,7 +61,7 @@ export default async function AdminLayout({
               <Link
                 key={n.href}
                 href={n.href}
-                className="whitespace-nowrap text-[var(--color-muted-foreground)] hover:text-white"
+                className="whitespace-nowrap text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
               >
                 {n.label}
               </Link>

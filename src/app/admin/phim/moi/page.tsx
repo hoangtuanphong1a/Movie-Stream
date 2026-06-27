@@ -12,11 +12,13 @@ export default async function NewMoviePage() {
     <div>
       <Link
         href="/admin/phim"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] hover:text-white"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)]"
       >
         <ChevronLeft className="size-4" /> Danh sách phim
       </Link>
-      <h1 className="mb-6 text-2xl font-bold">Thêm phim mới</h1>
+      <h1 className="mb-6 font-serif text-3xl font-bold tracking-tight">
+        Thêm phim mới
+      </h1>
       <MovieForm genres={genres.map((g) => ({ id: g.id, name: g.name }))} />
     </div>
   );

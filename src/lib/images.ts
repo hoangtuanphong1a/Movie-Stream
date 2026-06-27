@@ -8,13 +8,22 @@ const PLACEHOLDER_BACKDROP =
 const PLACEHOLDER_PROFILE =
   "https://placehold.co/300x450/141414/3f3f46?text=N/A";
 
+// Ảnh IMDb/Amazon mặc định chỉ rộng 300px (._V1_SX300.jpg) → mờ khi phóng to.
+// Nâng lên ~780px cho nét hơn.
+function upscaleAmazon(url: string): string {
+  if (url.includes("amazon.com")) {
+    return url.replace(/\._V1_.*?\.jpg/i, "._V1_SX780.jpg");
+  }
+  return url;
+}
+
 function build(
   path: string | null | undefined,
   size: string,
   placeholder: string,
 ): string {
   if (!path) return placeholder;
-  if (path.startsWith("http")) return path; // URL đầy đủ (dữ liệu seed)
+  if (path.startsWith("http")) return upscaleAmazon(path); // URL đầy đủ (seed)
   return `${TMDB_IMAGE_BASE}/${size}${path}`; // path TMDB (vd /abc.jpg)
 }
 

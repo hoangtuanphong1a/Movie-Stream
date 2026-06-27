@@ -44,7 +44,9 @@ export function MovieActions({
   };
 
   const base =
-    "inline-flex h-12 items-center gap-2 rounded-md px-6 text-base font-medium transition-colors disabled:opacity-50";
+    "inline-flex h-12 cursor-pointer items-center gap-2 rounded-md px-6 text-base font-medium transition-colors duration-200 disabled:opacity-50";
+  const idle =
+    "border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-foreground)] hover:bg-[var(--color-accent)]";
 
   return (
     <>
@@ -53,9 +55,7 @@ export function MovieActions({
         disabled={pending}
         className={cn(
           base,
-          fav
-            ? "bg-[var(--color-primary)] text-white"
-            : "bg-[var(--color-secondary)] hover:bg-[var(--color-accent)]",
+          fav ? "bg-[var(--color-primary)] text-white hover:opacity-90" : idle,
         )}
       >
         <Heart className={cn("size-5", fav && "fill-white")} />
@@ -68,8 +68,8 @@ export function MovieActions({
         className={cn(
           base,
           wl
-            ? "bg-[var(--color-secondary)] text-white"
-            : "bg-[var(--color-secondary)] hover:bg-[var(--color-accent)]",
+            ? "bg-[var(--color-secondary)] text-white hover:opacity-90"
+            : idle,
         )}
       >
         {wl ? <Check className="size-5" /> : <Plus className="size-5" />}

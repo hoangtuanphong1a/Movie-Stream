@@ -12,7 +12,9 @@ export default async function FavoritesPage() {
 
   return (
     <div className="mx-auto max-w-[1600px] py-6">
-      <h1 className="mb-6 px-4 text-2xl font-bold md:px-8">Phim yêu thích</h1>
+      <h1 className="mb-6 px-4 font-serif text-3xl font-bold tracking-tight md:px-8">
+        Phim yêu thích
+      </h1>
       <MovieGrid movies={favorites.map((f) => f.movie)} />
     </div>
   );

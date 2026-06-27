@@ -15,7 +15,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold">Lịch sử xem</h1>
+      <h1 className="mb-6 font-serif text-3xl font-bold tracking-tight">Lịch sử xem</h1>
 
       {history.length === 0 ? (
         <p className="text-[var(--color-muted-foreground)]">

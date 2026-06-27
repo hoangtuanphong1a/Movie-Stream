@@ -1,38 +1,67 @@
 @import "tailwindcss";
 
-/* ── Hệ màu tối (dark) kiểu nền tảng xem phim ── */
+/* ── Hệ màu SÁNG kiểu tạp chí điện ảnh (editorial) ── */
 @theme {
-  --color-background: #0a0a0a;
-  --color-foreground: #ededed;
+  --color-background: #fafafa;
+  --color-foreground: #09090b;
 
-  --color-card: #141414;
-  --color-card-foreground: #ededed;
+  --color-card: #ffffff;
+  --color-card-foreground: #09090b;
 
-  --color-muted: #1a1a1a;
-  --color-muted-foreground: #a1a1aa;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #52525b;
 
-  --color-border: #262626;
-  --color-input: #2a2a2a;
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
 
-  --color-primary: #e50914;
+  --color-primary: #18181b;
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #1f1f1f;
-  --color-secondary-foreground: #ededed;
+  --color-secondary: #18181b;
+  --color-secondary-foreground: #ffffff;
 
-  --color-accent: #262626;
-  --color-accent-foreground: #ffffff;
+  --color-accent: #f4f4f5;
+  --color-accent-foreground: #09090b;
 
   --color-destructive: #ef4444;
-  --color-ring: #e50914;
+  --color-ring: #18181b;
 
-  --radius: 0.625rem;
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --radius: 0.5rem;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 }
 
 html {
+  color-scheme: light;
+}
+
+/* ── Chế độ nền tối (bật bằng class .dark trên <html>) ── */
+html.dark {
   color-scheme: dark;
+  --color-background: #0b0b0d;
+  --color-foreground: #ededee;
+
+  --color-card: #161619;
+  --color-card-foreground: #ededee;
+
+  --color-muted: #1c1c1f;
+  --color-muted-foreground: #a1a1aa;
+
+  --color-border: #2a2a2f;
+  --color-input: #2a2a2f;
+
+  /* Accent đỏ điện ảnh để nút/nhãn (chữ trắng) vẫn nổi rõ trên nền tối */
+  --color-primary: #e50914;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #fafafa;
+
+  --color-accent: #26262b;
+  --color-accent-foreground: #fafafa;
+
+  --color-destructive: #ef4444;
+  --color-ring: #e50914;
 }
 
 body {
@@ -40,6 +69,9 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Ẩn thanh cuộn cho các hàng phim cuộn ngang */
@@ -64,3 +96,99 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ── Hiệu ứng chuyển động ── */
+/* Skeleton shimmer (quét sáng) */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.06),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
+}
+
+/* Ken-Burns: zoom chậm cho ảnh backdrop */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+.animate-kenburns {
+  animation: kenburns 20s ease-out forwards;
+}
+
+/* Trôi nhẹ (poster hero) */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+/* Thanh tiến trình autoplay trong dot của hero (chạy đầy theo thời gian slide) */
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hero-progress {
+  transform-origin: left;
+  animation: heroProgress linear forwards;
+}
+
+/* Sheen: vệt sáng quét qua nút CTA khi hover */
+.sheen {
+  position: relative;
+  overflow: hidden;
+}
+.sheen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 75%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+.sheen:hover::before {
+  left: 150%;
+}
+
+/* Ghi chú: cố ý KHÔNG tắt motion theo prefers-reduced-motion để hiệu ứng luôn
+   hiển thị khi demo (kể cả khi máy tắt "Animation effects"). framer-motion cũng
+   được ép bật qua <MotionProvider> (MotionConfig reducedMotion="never"). */

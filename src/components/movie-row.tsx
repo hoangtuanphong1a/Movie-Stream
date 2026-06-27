@@ -2,19 +2,33 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MovieCard, type CardMovie } from "./movie-card";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.03 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, x: 28 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: EASE } },
+};
 
 export function MovieRow({
   title,
   movies,
   href,
+  priorityCount = 0,
 }: {
   title: string;
   movies: CardMovie[];
   href?: string;
+  priorityCount?: number;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
 
   const scroll = (dir: 1 | -1) => {
     const el = scroller.current;
@@ -24,50 +38,53 @@ export function MovieRow({
 
   if (movies.length === 0) return null;
 
+  const arrowClass =
+    "flex size-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-foreground)] transition-all duration-200 hover:bg-[var(--color-accent)] hover:scale-110 active:scale-95 cursor-pointer";
+
   return (
-    <section className="group/row relative">
-      <div className="mb-3 flex items-center justify-between px-4 md:px-8">
-        <h2 className="text-lg font-semibold md:text-xl">
+    <section className="group/row">
+      <div className="mb-4 flex items-end justify-between px-4 md:px-8">
+        <h2 className="flex items-center gap-3 font-serif text-2xl font-bold tracking-tight md:text-3xl">
+          <span className="h-7 w-1 rounded-full bg-[var(--color-primary)] transition-all duration-300 group-hover/row:h-9" />
           {href ? (
-            <Link href={href} className="hover:text-[var(--color-primary)]">
+            <Link
+              href={href}
+              className="transition-colors hover:text-[var(--color-primary)]"
+            >
               {title}
             </Link>
           ) : (
             title
           )}
         </h2>
-      </div>
-
-      <div className="relative">
-        <button
-          aria-label="Cuộn trái"
-          onClick={() => scroll(-1)}
-          className="absolute left-0 top-0 z-10 hidden h-full w-10 items-center justify-center bg-gradient-to-r from-black/80 to-transparent opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-        >
-          <ChevronLeft className="size-7" />
-        </button>
-
-        <div
-          ref={scroller}
-          className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8"
-        >
-          {movies.map((m) => (
-            <MovieCard
-              key={m.slug}
-              movie={m}
-              className="w-[140px] shrink-0 sm:w-[160px] md:w-[180px]"
-            />
-          ))}
+        <div className="hidden gap-2 opacity-70 transition-opacity duration-200 group-hover/row:opacity-100 md:flex">
+          <button aria-label="Cuộn trái" onClick={() => scroll(-1)} className={arrowClass}>
+            <ChevronLeft className="size-5" />
+          </button>
+          <button aria-label="Cuộn phải" onClick={() => scroll(1)} className={arrowClass}>
+            <ChevronRight className="size-5" />
+          </button>
         </div>
-
-        <button
-          aria-label="Cuộn phải"
-          onClick={() => scroll(1)}
-          className="absolute right-0 top-0 z-10 hidden h-full w-10 items-center justify-center bg-gradient-to-l from-black/80 to-transparent opacity-0 transition-opacity group-hover/row:opacity-100 md:flex"
-        >
-          <ChevronRight className="size-7" />
-        </button>
       </div>
+
+      <motion.div
+        ref={scroller}
+        variants={container}
+        initial={reduce ? false : "hidden"}
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth px-4 pb-2 md:px-8"
+      >
+        {movies.map((m, i) => (
+          <motion.div
+            key={m.slug}
+            variants={item}
+            className="w-[140px] shrink-0 sm:w-[160px] md:w-[180px]"
+          >
+            <MovieCard movie={m} priority={i < priorityCount} />
+          </motion.div>
+        ))}
+      </motion.div>
     </section>
   );
 }

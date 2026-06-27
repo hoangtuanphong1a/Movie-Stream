@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -6,40 +7,71 @@ const PUBLISHED = { status: "PUBLISHED" } as const;
 
 export type SortOption = "newest" | "rating" | "title";
 
-/** Dữ liệu cho trang chủ: phim nổi bật + các hàng gợi ý. */
-export async function getHomeData() {
-  const [featured, trending, newest] = await Promise.all([
+/** Dữ liệu cho trang chủ: phim nổi bật + các hàng gợi ý. (cache 120s — danh mục ít đổi) */
+export const getHomeData = unstable_cache(
+  _getHomeData,
+  ["home-data-v1"],
+  { revalidate: 120 },
+);
+async function _getHomeData() {
+  const [featured, trending, newest, topRated, tvShows, classics] = await Promise.all([
     prisma.movie.findMany({
       where: { ...PUBLISHED, featured: true },
       include: { genres: { include: { genre: true } } },
       orderBy: { updatedAt: "desc" },
-      take: 5,
+      take: 6,
     }),
     prisma.movie.findMany({
       where: PUBLISHED,
-      orderBy: [{ voteAverage: "desc" }, { viewCount: "desc" }],
-      take: 14,
+      orderBy: [{ viewCount: "desc" }, { voteAverage: "desc" }],
+      take: 16,
     }),
     prisma.movie.findMany({
       where: PUBLISHED,
       orderBy: { createdAt: "desc" },
-      take: 14,
+      take: 16,
+    }),
+    prisma.movie.findMany({
+      where: { ...PUBLISHED, voteAverage: { gte: 7 } },
+      orderBy: { voteAverage: "desc" },
+      take: 16,
+    }),
+    prisma.movie.findMany({
+      where: { ...PUBLISHED, type: "TV" },
+      orderBy: { createdAt: "desc" },
+      take: 16,
+    }),
+    prisma.movie.findMany({
+      where: {
+        ...PUBLISHED,
+        genres: { some: { genre: { slug: "phim-kinh-dien" } } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 16,
     }),
   ]);
 
-  const genres = await prisma.genre.findMany({ orderBy: { name: "asc" } });
-  const genreRows: { genre: (typeof genres)[number]; movies: typeof newest }[] = [];
-  for (const g of genres) {
-    const movies = await prisma.movie.findMany({
-      where: { ...PUBLISHED, genres: { some: { genreId: g.id } } },
-      orderBy: { voteAverage: "desc" },
-      take: 14,
-    });
-    if (movies.length >= 3) genreRows.push({ genre: g, movies });
-    if (genreRows.length >= 6) break;
-  }
+  // Đếm số phim mỗi thể loại để ưu tiên thể loại nhiều phim lên đầu.
+  const genres = await prisma.genre.findMany({
+    include: { _count: { select: { movies: true } } },
+  });
+  const ranked = genres
+    .filter((g) => g._count.movies >= 6)
+    .sort((a, b) => b._count.movies - a._count.movies)
+    .slice(0, 8);
 
-  return { featured, trending, newest, genreRows };
+  const genreRows = await Promise.all(
+    ranked.map(async (g) => ({
+      genre: g,
+      movies: await prisma.movie.findMany({
+        where: { ...PUBLISHED, genres: { some: { genreId: g.id } } },
+        orderBy: { voteAverage: "desc" },
+        take: 16,
+      }),
+    })),
+  );
+
+  return { featured, trending, newest, topRated, tvShows, classics, genreRows };
 }
 
 /** Chi tiết phim theo slug (chỉ phim đã xuất bản). */
@@ -68,6 +100,19 @@ export async function getMovieBySlug(slug: string) {
   });
 }
 
+/** Bình luận của một phim (kèm trả lời lồng 1 cấp). */
+export async function getComments(movieId: string) {
+  const userSelect = { select: { id: true, name: true, image: true } } as const;
+  return prisma.comment.findMany({
+    where: { movieId, parentId: null },
+    include: {
+      user: userSelect,
+      replies: { include: { user: userSelect }, orderBy: { createdAt: "asc" } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 /** Phim liên quan theo thể loại. */
 export async function getRelatedMovies(movieId: string, genreIds: string[]) {
   if (genreIds.length === 0) return [];
@@ -91,8 +136,13 @@ export type BrowseParams = {
   pageSize?: number;
 };
 
-/** Duyệt phim có lọc + phân trang. */
-export async function browseMovies(params: BrowseParams) {
+/** Duyệt phim có lọc + phân trang. (cache 120s theo từng bộ lọc) */
+export const browseMovies = unstable_cache(
+  _browseMovies,
+  ["browse-movies-v1"],
+  { revalidate: 120 },
+);
+async function _browseMovies(params: BrowseParams) {
   const { genre, year, type, sort = "newest", page = 1, pageSize = 24 } = params;
 
   const where: Prisma.MovieWhereInput = { ...PUBLISHED };
@@ -145,6 +195,22 @@ export async function searchMovies(q: string) {
 /** Tất cả thể loại. */
 export async function getAllGenres() {
   return prisma.genre.findMany({ orderBy: { name: "asc" } });
+}
+
+/** Thể loại kèm số phim, sắp theo độ phổ biến (nhiều phim lên đầu). (cache 300s) */
+export const getGenresWithCount = unstable_cache(
+  _getGenresWithCount,
+  ["genres-count-v1"],
+  { revalidate: 300 },
+);
+async function _getGenresWithCount() {
+  const genres = await prisma.genre.findMany({
+    include: { _count: { select: { movies: true } } },
+  });
+  return genres
+    .filter((g) => g._count.movies > 0)
+    .sort((a, b) => b._count.movies - a._count.movies)
+    .map((g) => ({ slug: g.slug, name: g.name, count: g._count.movies }));
 }
 
 /** Danh sách phim yêu thích của user. */

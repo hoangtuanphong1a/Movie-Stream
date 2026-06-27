@@ -19,7 +19,7 @@ export default async function SearchPage({
   return (
     <div className="mx-auto max-w-[1600px] py-6">
       <div className="px-4 md:px-8">
-        <h1 className="mb-4 text-2xl font-bold">Tìm kiếm</h1>
+        <h1 className="mb-4 font-serif text-3xl font-bold tracking-tight">Tìm kiếm</h1>
         <div className="max-w-xl">
           <SearchBox initial={q} />
         </div>

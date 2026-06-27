@@ -1,20 +1,44 @@
 import { getHomeData } from "@/lib/queries";
-import { Hero } from "@/components/hero";
+import { HeroCarousel } from "@/components/hero-carousel";
 import { MovieRow } from "@/components/movie-row";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const { featured, trending, newest, genreRows } = await getHomeData();
-  const hero = featured[0];
+  const { featured, trending, newest, topRated, tvShows, classics, genreRows } =
+    await getHomeData();
 
   return (
     <div className="pb-8">
-      {hero && <Hero movie={hero} />}
+      {featured.length > 0 && <HeroCarousel movies={featured} />}
 
-      <div className="relative z-10 -mt-10 space-y-8 md:-mt-16">
-        <MovieRow title="Thịnh hành" movies={trending} href="/duyet?sap-xep=rating" />
+      <div className="space-y-12 py-12">
+        {classics.length > 0 && (
+          <MovieRow
+            title="Phim kinh điển · Xem full miễn phí"
+            movies={classics}
+            href="/duyet?the-loai=phim-kinh-dien"
+            priorityCount={6}
+          />
+        )}
+        <MovieRow
+          title="Thịnh hành"
+          movies={trending}
+          href="/duyet?sap-xep=rating"
+        />
         <MovieRow title="Mới cập nhật" movies={newest} href="/duyet" />
+        <MovieRow
+          title="Đánh giá cao"
+          movies={topRated}
+          href="/duyet?sap-xep=rating"
+        />
+        {tvShows.length > 0 && (
+          <MovieRow
+            title="Phim bộ"
+            movies={tvShows}
+            href="/duyet?loai=TV"
+          />
+        )}
         {genreRows.map(({ genre, movies }) => (
           <MovieRow
             key={genre.id}

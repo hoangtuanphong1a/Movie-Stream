@@ -42,7 +42,7 @@ export function MovieRowActions({
         className={ICON_BTN}
       >
         <Star
-          className={`size-4 ${featured ? "fill-yellow-400 text-yellow-400" : ""}`}
+          className={`size-4 ${featured ? "fill-amber-500 text-amber-500" : ""}`}
         />
       </button>
       <button

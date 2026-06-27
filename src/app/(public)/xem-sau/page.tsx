@@ -12,7 +12,7 @@ export default async function WatchlistPage() {
 
   return (
     <div className="mx-auto max-w-[1600px] py-6">
-      <h1 className="mb-6 px-4 text-2xl font-bold md:px-8">
+      <h1 className="mb-6 px-4 font-serif text-3xl font-bold tracking-tight md:px-8">
         Danh sách xem sau
       </h1>
       <MovieGrid movies={watchlist.map((w) => w.movie)} />

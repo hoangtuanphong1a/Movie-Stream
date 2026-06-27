@@ -68,11 +68,13 @@ export default async function MovieSourcesPage({
     <div className="max-w-3xl">
       <Link
         href={`/admin/phim/${movie.id}`}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] hover:text-white"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)]"
       >
         <ChevronLeft className="size-4" /> Sửa phim
       </Link>
-      <h1 className="mb-6 text-2xl font-bold">Nguồn phát: {movie.title}</h1>
+      <h1 className="mb-6 font-serif text-3xl font-bold tracking-tight">
+        Nguồn phát: {movie.title}
+      </h1>
 
       {movie.type === "MOVIE" ? (
         <section className="space-y-3">

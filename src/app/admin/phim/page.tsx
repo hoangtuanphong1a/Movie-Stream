@@ -25,7 +25,9 @@ export default async function AdminMoviesPage({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Quản lý phim ({total})</h1>
+        <h1 className="font-serif text-3xl font-bold tracking-tight">
+          Quản lý phim ({total})
+        </h1>
         <Link
           href="/admin/phim/moi"
           className={buttonVariants({ size: "sm" })}
@@ -83,7 +85,7 @@ export default async function AdminMoviesPage({
                         {m.title}
                       </Link>
                       {m.featured && (
-                        <span className="ml-2 text-xs text-yellow-400">
+                        <span className="ml-2 text-xs font-medium text-amber-600">
                           ★ Nổi bật
                         </span>
                       )}

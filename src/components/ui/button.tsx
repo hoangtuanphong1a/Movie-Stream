@@ -3,20 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,background-color,box-shadow,opacity,transform] duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
           "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:opacity-90",
         secondary:
-          "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] hover:bg-[var(--color-accent)]",
+          "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] hover:opacity-90",
         outline:
-          "border border-[var(--color-border)] bg-transparent hover:bg-[var(--color-accent)]",
-        ghost: "bg-transparent hover:bg-[var(--color-accent)]",
+          "border border-[var(--color-border)] bg-transparent text-[var(--color-foreground)] hover:bg-[var(--color-accent)]",
+        ghost:
+          "bg-transparent text-[var(--color-foreground)] hover:bg-[var(--color-accent)]",
         destructive:
           "bg-[var(--color-destructive)] text-white hover:opacity-90",
-        white: "bg-white text-black hover:bg-white/90",
       },
       size: {
         default: "h-10 px-4 py-2",

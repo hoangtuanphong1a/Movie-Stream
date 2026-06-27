@@ -14,7 +14,9 @@ export default async function LoginPage({
 
   return (
     <>
-      <h1 className="mb-4 text-center text-xl font-semibold">Đăng nhập</h1>
+      <h1 className="mb-4 text-center font-serif text-2xl font-bold tracking-tight">
+        Đăng nhập
+      </h1>
       <LoginForm callbackUrl={callbackUrl} registered={registered} />
     </>
   );

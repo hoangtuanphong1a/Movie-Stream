@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { getMovieBySlug } from "@/lib/queries";
 import { getCurrentUser } from "@/lib/session";
@@ -30,10 +30,8 @@ export default async function WatchPage({
   const { slug } = await params;
   const sp = await searchParams;
 
+  // Khách (chưa đăng nhập) vẫn xem được phim; chỉ tính năng lưu tiến độ cần đăng nhập.
   const user = await getCurrentUser();
-  if (!user) {
-    redirect(`/dang-nhap?callbackUrl=${encodeURIComponent(`/xem/${slug}`)}`);
-  }
 
   const movie = await getMovieBySlug(slug);
   if (!movie) notFound();
@@ -53,28 +51,45 @@ export default async function WatchPage({
     .slice()
     .sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
 
-  const history = await prisma.watchHistory.findFirst({
-    where: {
-      userId: user.id,
-      movieId: movie.id,
-      episodeId: currentEpisode?.id ?? null,
-    },
-  });
+  const history = user
+    ? await prisma.watchHistory.findFirst({
+        where: {
+          userId: user.id,
+          movieId: movie.id,
+          episodeId: currentEpisode?.id ?? null,
+        },
+      })
+    : null;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
       <Link
         href={`/phim/${movie.slug}`}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] hover:text-white"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-muted-foreground)] transition-colors hover:text-[var(--color-foreground)]"
       >
         <ChevronLeft className="size-4" /> Quay lại chi tiết
       </Link>
 
-      <h1 className="mb-1 text-xl font-bold md:text-2xl">{movie.title}</h1>
+      <h1 className="mb-1 font-serif text-2xl font-bold tracking-tight md:text-3xl">
+        {movie.title}
+      </h1>
       {currentEpisode && (
         <p className="mb-4 text-sm text-[var(--color-muted-foreground)]">
           Tập {currentEpisode.number}
           {currentEpisode.title ? ` · ${currentEpisode.title}` : ""}
+        </p>
+      )}
+
+      {!user && (
+        <p className="mb-4 rounded-md border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
+          Bạn đang xem với tư cách khách.{" "}
+          <Link
+            href={`/dang-nhap?callbackUrl=${encodeURIComponent(`/xem/${movie.slug}`)}`}
+            className="text-[var(--color-primary)] hover:underline"
+          >
+            Đăng nhập
+          </Link>{" "}
+          để lưu tiến độ xem và thêm vào yêu thích.
         </p>
       )}
 
@@ -83,12 +98,15 @@ export default async function WatchPage({
         movieId={movie.id}
         episodeId={currentEpisode?.id ?? null}
         initialTime={history?.progressSeconds ?? 0}
+        trackProgress={Boolean(user)}
       />
 
       {/* Danh sách tập (phim bộ) */}
       {movie.type === "TV" && episodes.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold">Danh sách tập</h2>
+          <h2 className="mb-3 font-serif text-xl font-bold tracking-tight">
+            Danh sách tập
+          </h2>
           <div className="flex flex-wrap gap-2">
             {episodes.map((ep) => (
               <Link
@@ -109,7 +127,7 @@ export default async function WatchPage({
       )}
 
       {movie.overview && (
-        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-gray-300">
+        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
           {movie.overview}
         </p>
       )}

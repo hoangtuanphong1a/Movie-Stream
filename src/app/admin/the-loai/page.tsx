@@ -11,7 +11,9 @@ export default async function GenresPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold">Quản lý thể loại</h1>
+      <h1 className="mb-6 font-serif text-3xl font-bold tracking-tight">
+        Quản lý thể loại
+      </h1>
 
       <div className="mb-6">
         <CreateGenreForm />
